@@ -1,0 +1,22 @@
+{
+  "name": "clientserver-clientserver_model",
+  "version": "1.0.0",
+  "description": "A model for the clientserver-clientserver peer-to-peer using common techstacks and protocols.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SullivanXiong/clientserver-clientserver_model.git"
+  },
+  "author": "Sullivan Xiong",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SullivanXiong/clientserver-clientserver_model/issues"
+  },
+  "homepage": "https://github.com/SullivanXiong/clientserver-clientserver_model#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
