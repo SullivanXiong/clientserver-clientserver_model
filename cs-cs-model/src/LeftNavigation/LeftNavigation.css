@@ -1,0 +1,7 @@
+.leftNavWrapper {
+    width: 20vw;
+    height: 100vh;
+    float: left;
+    grid-template-rows: auto;
+    background-color: rgba(0,0,0,.9);
+}

@@ -2,6 +2,8 @@ const express = require("express");
 const http = require("http");
 const ports = [3000, 3001, 3002];
 const nodes = [];
+
+/* Create an HTTP Server for every port in ports */
 ports.forEach(
   (port) =>
     nodes.push({
@@ -10,9 +12,8 @@ ports.forEach(
       peers: ports.filter((peer) => peer != port),
     })
 );
-const initRoutes = require("./nodeRoutes/nodeInit/init.js");
 
-
+/* For every node, initialize these routes for their HTTP Server */
 for (let node of nodes) {
     let app = node["app"];
     let port = node["port"];
