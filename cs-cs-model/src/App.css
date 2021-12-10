@@ -13,6 +13,7 @@
 .rightNavWrapper {
   width: 80vw;
   height: 100vh;
+  margin: 0;
   float: right;
   grid-template-rows: auto;
   background-color: rgba(0,0,0,.9);
