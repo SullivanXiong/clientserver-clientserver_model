@@ -1,0 +1,6 @@
+{
+  "node": "node1",
+  "port": 7778,
+  "peers": [7777, 7779],
+  "blockchain": {}
+}
