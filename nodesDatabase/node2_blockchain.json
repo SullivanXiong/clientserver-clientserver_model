@@ -1,9 +1,29 @@
 {
   "node": "node2",
-  "port": 7778,
-  "walletDetails": {
-    "seedPhrase": ["hello", "world", "node2", "hello", "world", "node2", "hello", "world", "node2"]
-  },
   "peers": [7777, 7779],
-  "blockchain": {}
+  "port": 7778,
+  "walletDetails": { "seedPhrase": ["hello", "world", "node2", "hello", "world", "node2", "hello", "world", "node2"] },
+  "blockchain": {
+    "chain": [
+      {
+        "index": 0,
+        "timestamp": 1644602065313,
+        "transactions": [
+          {
+            "from": {
+              "from": "0x00000000000000000000000000000000",
+              "to": "0x70000000000000000000000000000000",
+              "amount": 7,
+              "credit": 1,
+              "fromSignature": "0x00000000000000000000000000000000"
+            },
+            "credit": 0
+          }
+        ],
+        "prevHash": 0,
+        "hash": 0
+      }
+    ],
+    "currentTransactions": []
+  }
 }
