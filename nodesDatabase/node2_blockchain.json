@@ -1,6 +1,9 @@
 {
-  "node": "node1",
+  "node": "node2",
   "port": 7778,
+  "walletDetails": {
+    "seedPhrase": ["hello", "world", "node2", "hello", "world", "node2", "hello", "world", "node2"]
+  },
   "peers": [7777, 7779],
   "blockchain": {}
 }

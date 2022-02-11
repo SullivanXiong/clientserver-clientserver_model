@@ -9,11 +9,12 @@ class Block {
 }
 
 class Transaction {
-  constructor(from, to, amount, credit = 0) {
+  constructor(from, to, amount, credit = 0, fromSignature) {
     this.from = from;
     this.to = to;
     this.amount = amount;
     this.credit = credit;
+    this.fromSignature = fromSignature;
   }
 }
 

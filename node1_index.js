@@ -3,8 +3,12 @@ const axios = require("axios");
 const fs = require("fs");
 const BlockChain = require("./pocBlockchain/blockchain.js");
 const { Transaction } = require("./pocBlockchain/block.js");
-const node = "node1";
-const port = 7777;
+var path = require("path");
+var scriptName = path.basename(__filename);
+const node = scriptName.split("_")[0];
+const SHA256 = require("crypto-js/sha256");
+const EC = require("elliptic").ec;
+const ec = new EC("secp256k1");
 
 const app = express();
 
@@ -13,17 +17,21 @@ app.use(express.urlencoded({ extended: true }));
 
 let blockchain;
 let peers;
+let key;
+let port;
 
-fs.readFile(`./nodesDatabase/${node}_blockchain.json`, (err, raw_data) => {
-  if (err) {
-    console.error();
-    return;
-  }
-
-  let data = JSON.parse(raw_data);
+async function init() {
+  let data = JSON.parse(await fs.readFileSync(`./nodesDatabase/${node}_blockchain.json`));
   peers = data.peers;
+  port = data.port;
+
+  key = ec.keyFromPrivate(SHA256(data.walletDetails.seedPhrase).toString());
   blockchain = new BlockChain();
-});
+
+  app.listen(port, () => {
+    console.log(`ClientServer Node listening at https://localhost:${port}`);
+  });
+}
 
 function genesisBlock() {
   console.log("Creating genesis block and broadcasting it to peers...");
@@ -31,7 +39,8 @@ function genesisBlock() {
     "0x00000000000000000000000000000000",
     "0x70000000000000000000000000000000",
     7,
-    1
+    1,
+    "0x00000000000000000000000000000000"
   );
 
   blockchain.addNewTransaction(genesisTransaction);
@@ -67,9 +76,7 @@ app.post("/receiveTransaction", (req, res) => {
   res.send(`Successfully received block ${data}`);
 });
 
-app.listen(port, () => {
-  console.log(`ClientServer Node listening at https://localhost:${port}`);
-});
+init();
 
 process.stdin.on("data", (raw_stdin) => {
   let _stdin = raw_stdin.toString().trim();
