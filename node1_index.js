@@ -7,6 +7,7 @@ const { writeNodeData } = require("./utility.js");
 var path = require("path");
 var scriptName = path.basename(__filename);
 const node = scriptName.split("_")[0];
+const CryptoJS = require("crypto-js");
 const SHA256 = require("crypto-js/sha256");
 const EC = require("elliptic").ec;
 const ec = new EC("secp256k1");
@@ -18,6 +19,10 @@ app.use(express.urlencoded({ extended: true }));
 
 let NODE_DATA = {};
 let key;
+let message;
+let messageHash;
+let signature;
+let public;
 
 async function init() {
   let data = JSON.parse(await fs.readFileSync(`./nodesDatabase/${node}_blockchain.json`));
@@ -29,7 +34,20 @@ async function init() {
   NODE_DATA["blockchain"] = new BlockChain();
   if (data.blockchain.chain?.length > 0) NODE_DATA["blockchain"]["chain"] = data.blockchain.chain;
 
-  key = ec.keyFromPrivate(SHA256(data.walletDetails.seedPhrase).toString());
+  key = ec.keyFromPrivate(SHA256(data.walletDetails.seedPhrase.toString()).toString());
+  public = key.getPublic().encode("hex", true);
+  message = "hello world";
+  messageHash = SHA256("hello world").toString(CryptoJS.enc.hex);
+  let messageHashFake = SHA256("duhh").toString(CryptoJS.enc.hex);
+  let s = key.sign(messageHash);
+  let signature = s.toDER("hex");
+  console.log(s.r.toString("hex"));
+  console.log(s.s.toString("hex"));
+  console.log(signature);
+  let res__ = key.verify(messageHash, signature);
+  let fakeres__ = key.verify(messageHashFake, signature);
+  console.log(res__);
+  console.log(fakeres__);
 
   app.listen(data.port, () => {
     console.log(`ClientServer Node listening at https://localhost:${data.port}`);
@@ -43,7 +61,8 @@ async function genesisBlock() {
     "0x70000000000000000000000000000000",
     7,
     1,
-    "0x00000000000000000000000000000000"
+    "0x00000000000000000000000000000000",
+    ""
   );
 
   NODE_DATA["blockchain"].addNewTransaction(genesisTransaction);
@@ -65,6 +84,18 @@ async function collectBlockchainFromPeer() {
   }
 
   writeNodeData(NODE_DATA);
+}
+
+function sendMessage() {
+  for (let peer of NODE_DATA["peers"]) {
+    console.log(`Sending signed message to ${peer}`);
+    axios.post(`http://localhost:${peer}/sendMessage`, {
+      message: message,
+      messageHash: messageHash,
+      signature: signature,
+      public: public,
+    });
+  }
 }
 
 app.get("/", (req, res) => {
@@ -90,6 +121,19 @@ app.post("/receiveTransaction", (req, res) => {
   res.send(`Successfully received block ${data}`);
 });
 
+app.post("/sendMessage", (req, res) => {
+  let message = req.body.message;
+  let public = req.body.public;
+  let messageHash = req.body.messageHash;
+  let signature = req.body.signature;
+  console.log(public);
+  console.log(messageHash);
+  console.log(signature);
+  let pubkey = ec.keyFromPublic(public, "hex");
+  console.log(pubkey);
+  console.log(pubkey.verify(messageHash, signature));
+});
+
 init();
 
 process.stdin.on("data", (raw_stdin) => {
@@ -98,5 +142,7 @@ process.stdin.on("data", (raw_stdin) => {
     genesisBlock();
   } else if (_stdin == "getBlockChain") {
     collectBlockchainFromPeer();
+  } else if (_stdin == "sendMessage") {
+    sendMessage();
   }
 });
