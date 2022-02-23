@@ -3,7 +3,7 @@ const axios = require("axios");
 const fs = require("fs");
 const BlockChain = require("./pocBlockchain/blockchain.js");
 const { Transaction } = require("./pocBlockchain/block.js");
-const { writeNodeData } = require("./utility.js");
+const { writeNodeData, signMessage } = require("./utility.js");
 var path = require("path");
 var scriptName = path.basename(__filename);
 const node = scriptName.split("_")[0];
@@ -19,8 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 let NODE_DATA = {};
 let key;
-let message;
-let messageHash;
+let transaction;
 let signature;
 let public;
 
@@ -36,18 +35,16 @@ async function init() {
 
   key = ec.keyFromPrivate(SHA256(data.walletDetails.seedPhrase.toString()).toString());
   public = key.getPublic().encode("hex", true);
-  message = "hello world";
-  messageHash = SHA256("hello world").toString(CryptoJS.enc.hex);
-  let messageHashFake = SHA256("duhh").toString(CryptoJS.enc.hex);
-  let s = key.sign(messageHash);
-  let signature = s.toDER("hex");
-  console.log(s.r.toString("hex"));
-  console.log(s.s.toString("hex"));
-  console.log(signature);
-  let res__ = key.verify(messageHash, signature);
-  let fakeres__ = key.verify(messageHashFake, signature);
-  console.log(res__);
-  console.log(fakeres__);
+  transaction = new Transaction(public, "00000000000000000000000000000000", "1", "0");
+  let { messageHash, signature } = signMessage(key, JSON.stringify(transaction.body));
+  transaction.setSignature(signature);
+
+  let verKey = ec.keyFromPublic(transaction.body.from, "hex");
+  if (verKey.verify(SHA256(JSON.stringify(transaction.body)).toString(), transaction.signature)) {
+    console.log(true);
+    console.log(messageHash);
+    console.log(signature);
+  }
 
   app.listen(data.port, () => {
     console.log(`ClientServer Node listening at https://localhost:${data.port}`);

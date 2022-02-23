@@ -1,22 +1,26 @@
 class Block {
-  constructor(index, timestamp, transactions, prevHash, hash) {
+  constructor(index, timestamp, transactions, prevHash, hash, randomSeed) {
     this.index = index;
     this.timestamp = timestamp;
     this.transactions = transactions;
     this.prevHash = prevHash;
     this.hash = hash;
+    this.randomSeed = randomSeed;
+    this.signatures = {};
   }
 }
 
 class Transaction {
-  constructor(from, to, amount, credit = 0, fromSignature, randomSeed) {
-    this.from = from;
-    this.to = to;
-    this.amount = amount;
-    this.credit = credit;
-    this.fromSignature = fromSignature;
-    this.randomSeed = randomSeed;
-    this.signatures = {};
+  constructor(from, to, amount, credit = 0) {
+    this.body = {};
+    this.body.from = from;
+    this.body.to = to;
+    this.body.amount = amount;
+    this.body.credit = credit;
+  }
+
+  setSignature(signature) {
+    this.signature = signature;
   }
 }
 
